@@ -30,7 +30,7 @@ ForEach ($item in $inputArray) {
     # Pattern expects two table columns with the first column containing a Markdown link (the property name will be matched from the link name).
     # Handles escaped pipes in the comments column (`\\|` in the literal JSON, only needed in the original Markdown to avoid parsing as cell delimiter).
     $tableRowPattern = '\|\s*\[([^\]]+)\]\([^\)]+\)\s*\|\s*((?:\\\||[^|])*)\s*\|'
-    $tableWholePattern = "(?:${tableRowPattern})+(?=[^|]|$)"
+    $tableWholePattern = "(?:${tableRowPattern}\s*)+"
     $firstTable = [regex]::Match($contentAfter, $tableWholePattern)
 
     if (!$firstTable.Success) { continue }
