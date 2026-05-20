@@ -1,0 +1,37 @@
+# Test workflow for parsing wiki entity ref index to check for non-placeholder property comments, merging changes with copy of remote TppClassDefinitions.json, then commmiting back to remote
+
+name: Generate updated TppClassDefinitions JSON
+
+on:
+  push:
+    branches: [main] # change to `master` for actual wiki
+
+permissions:
+  contents: read
+  pull-requests: write
+
+jobs:
+  update-defs-json:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/create-github-app-token@v3
+        id: app-token
+        with:
+          client-id: ${{ vars.APP_CLIENT_ID }}
+          private-key: ${{ secrets.APP_PRIVATE_KEY }}
+          owner: ${{ github.repository_owner }}
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Run the build script
+        env:
+          PARSE_OUTPUT: "unique-comments.json"
+          MERGE_OUTPUT: "TppClassDefinitions.json"
+          ORIG_OUTPUT: "TppClassDefinitions-original.json"
+          REMOTE_OWNER: "chocmake"
+          REMOTE_REPO: "mgsv-wiki-entity-test-repo-b"
+          REMOTE_BASE_BRANCH: "main"
+          REL_JSON_PATH: "Tools/TppClassGeneration/TppClassDefinitions.json"
+          GH_TOKEN: ${{ steps.app-token.outputs.token }}
+        run: |
+          ./_scripts/entity-comments/new-entity-comments.ps1
+        shell: pwsh
